@@ -4,3 +4,10 @@ username:
 password:
 ssl: false
 lowercaseOutputName: true
+rules:
+
+- pattern : java.lang<type=GarbageCollector, name=(G1 Young Generation|G1 Old Generation)><LastGcInfo>(duration|GcThreadCount)
+  name: kafka_gc_lastgc
+  labels:
+    space: "$1"
+    type: "$2"
