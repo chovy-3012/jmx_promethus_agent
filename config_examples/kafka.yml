@@ -1,0 +1,52 @@
+startDelaySeconds: 0
+hostPort: localhost:9999
+username:
+password:
+ssl: false
+lowercaseOutputName: true
+#whitelistObjectNames: []
+rules:
+
+- pattern : java.lang<type=GarbageCollector, name=(G1 Young Generation|G1 Old Generation)><LastGcInfo>(duration|GcThreadCount)
+  name: kafka_gc_lastgc
+  labels:
+    space: "$1"
+    type: "$2"
+- pattern : java.lang<type=GarbageCollector, name=(G1 Young Generation|G1 Old Generation)><>CollectionCount
+  name: kafka_gc_collectioncount
+  labels:
+    space: "$1"
+- pattern : java.lang<type=MemoryPool, name=(G1 Eden Space|G1 Old Gen|G1 Survivor Space)><Usage>(used|committed)
+  name: kafka_memory_usage
+  labels:
+    space: "$1"
+    type: "$2"
+- pattern : java.lang<type=Threading><>ThreadCount
+  name: kafka_jvm_threadcount
+- pattern : kafka.network<type=RequestMetrics, name=(.+), request=(.+)><>(99thPercentile|95thPercentile|OneMinuteRate)
+  name: kafka_network_requestmetrics
+  labels:
+    name: "$1"
+    request: "$2"
+    type: "$3"
+- pattern : kafka.controller<type=(.+), name=(.+)><>(Count|Value)
+  name: kafka_controller_$1_$2
+- pattern : kafka.network<type=RequestChannel, name=(RequestQueueSize|ResponseQueueSize)><>Value
+  name: kafka_network_requestchannel
+  labels:
+    name: "$1"
+- pattern : kafka.server<type=ReplicaManager, name=(.+)><>(Value|OneMinuteRate)
+  name: kafka_server_replicamanager
+  labels:
+    name: "$1"
+    type: "$2"
+- pattern : kafka.server<type=BrokerTopicMetrics, name=(BytesInPerSec|BytesOutPerSec|MessagesInPerSec|TotalFetchRequestsPerSec|TotalProduceRequestsPerSec), topic=(.+)><>(FiveMinuteRate)
+  name: kafka_server_brokertopicmetrics
+  labels:
+    name: "$1"
+    topic: "$2"
+- pattern : kafka.server<type=BrokerTopicMetrics, name=(FailedFetchRequestsPerSec|FailedProduceRequestsPerSec|BytesRejectedPerSec), topic=(.+)><>(Count)
+  name: kafka_server_brokertopicmetrics_failed
+  labels:
+    name: "$1"
+    topic: "$2"

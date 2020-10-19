@@ -1,0 +1,37 @@
+startDelaySeconds: 0
+hostPort: localhost:10102
+username:
+password:
+ssl: false
+lowercaseOutputName: true
+rules:
+
+- pattern : java.lang<type=GarbageCollector, name=(G1 Young Generation|G1 Old Generation)><LastGcInfo>(duration|GcThreadCount)
+  name: hbase_gc_lastgc
+  labels:
+    space: "$1"
+    type: "$2"
+- pattern : java.lang<type=GarbageCollector, name=(G1 Young Generation|G1 Old Generation)><>CollectionCount
+  name: hbase_gc_collectioncount
+  labels:
+    space: "$1"
+
+- pattern : java.lang<type=MemoryPool, name=(G1 Eden Space|G1 Old Gen|G1 Survivor Space)><Usage>(used|committed)
+  name: hbase_memory_usage
+  labels:
+    space: "$1"
+    type: "$2"
+
+- pattern : java.lang<type=Threading><>ThreadCount
+  name: hbase_jvm_threadcount
+
+- pattern : Hadoop<service=HBase, name=JvmMetrics><>(\w*)
+  name: hbase_jvmMetrics
+  labels:
+    type: "$1"
+
+- pattern : Hadoop<service=HBase, name=RegionServer, sub=(IPC|Server|Users|WAL)><>(\w*)
+  name: hbase_regionserver
+  labels:
+    sub: "$1"
+    type: "$2"
