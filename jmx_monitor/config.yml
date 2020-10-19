@@ -1,0 +1,6 @@
+startDelaySeconds: 0
+hostPort: insight-service-app-4:7778
+username:
+password:
+ssl: false
+lowercaseOutputName: true
