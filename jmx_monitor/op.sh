@@ -1,21 +1,45 @@
 #!/bin/bash
 
-restartRegionserver(){
+bin_path="/root/jmx"
+monitor_path="/var/lib/om_plugin"
+
+dispatch_conf(){
         ip=$1
-        port=22
-        if [ $ip = "insight-hadoop-datanode-21" ] || [ $ip = "insight-hadoop-datanode-22" ] || [ $ip = "insight-hadoop-datanode-23" ] || [ $ip = "insight-hadoop-datanode-24" ] || [ $ip = "insight-hadoop-datanode-25" ];then
-                port=5837
-        fi
-	ssh -p $port $ip "sh ~/hbase_jmx/stop.sh"
-	#ssh -p $port $ip "rm -fr ~/hbase_jmx"
-	#scp -r -P $port ./hbase_jmx $ip:~
-	#ssh -p $port $ip "cd ~/hbase_jmx && sh start.sh"
+        port=$2
+	scp -P $port $bin_path/config.yml $ip:$bin_path
 }
 
-hosts=("insight-hadoop-datanode-1" "insight-hadoop-datanode-2" "insight-hadoop-datanode-3" "insight-hadoop-datanode-4" "insight-hadoop-datanode-5" "insight-hadoop-datanode-6" "insight-hadoop-datanode-7" "insight-hadoop-datanode-8" "insight-hadoop-datanode-9" "insight-hadoop-datanode-10" "insight-hadoop-datanode-11" "insight-hadoop-datanode-12" "insight-hadoop-datanode-13" "insight-hadoop-datanode-14" "insight-hadoop-datanode-15" "insight-hadoop-datanode-16" "insight-hadoop-datanode-21" "insight-hadoop-datanode-22" "insight-hadoop-datanode-23" "insight-hadoop-datanode-24" "insight-hadoop-datanode-25")
+dispatch_bin(){
+	ip=$1
+	port=$2
+	scp -P $port -r $bin_path $ip:$bin_path
+}
 
+dispatch_monitor(){
+	ip=$1
+        port=$2
+        scp -P $port -r $bin_path/monitor.sh $ip:$monitor_path
+}
+
+start_all(){
+	ip=$1
+        port=$2
+	ssh -p $port $ip "sh $bin_path/start.sh"
+}
+
+
+stop_all(){
+	ip=$1
+        port=$2
+	ssh -p $port $ip "sh $bin_path/stop.sh"
+}
+
+hosts=("druid2")
 for host in ${hosts[@]};do
-	echo `date`
-        echo "restart regionserver $host"
-        restartRegionserver $host
+	echo "$host ===>>> `date`"
+	port=22
+	#if [ $ip ="xx" ];then
+        #        port=5837
+        #fi
+	$1 $host $port $@
 done
