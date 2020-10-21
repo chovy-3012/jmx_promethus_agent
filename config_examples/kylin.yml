@@ -1,0 +1,28 @@
+startDelaySeconds: 0
+hostPort: insight-service-app-4:7778
+username:
+password:
+ssl: false
+lowercaseOutputName: true
+rules:
+
+- pattern : java.lang<type=GarbageCollector, name=(G1 Young Generation|G1 Old Generation)><LastGcInfo>(duration|GcThreadCount)
+  name: gc_lastgc
+  labels:
+    space: "$1"
+    type: "$2"
+- pattern : java.lang<type=GarbageCollector, name=(G1 Young Generation|G1 Old Generation)><>CollectionCount
+  name: gc_collectioncount
+  labels:
+    space: "$1"
+- pattern : java.lang<type=MemoryPool, name=(G1 Eden Space|G1 Old Gen|G1 Survivor Space)><Usage>(used|committed)
+  name: gc_memory_usage
+  labels:
+    space: "$1"
+    type: "$2"
+
+- pattern : metrics<project=(.+), cube=(.*) name=(.+)><>(Count|95thPercentile|99thPercentile)
+  name: metrics_$3_$4
+  labels:
+    project: "$1"
+    cube: "$2"

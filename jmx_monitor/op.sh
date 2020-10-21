@@ -1,45 +1,36 @@
 #!/bin/bash
 
-bin_path="/root/jmx"
+bin_path="/home/kylin/jmx_monitor"
 monitor_path="/var/lib/om_plugin"
 
+host=""
+port=""
 dispatch_conf(){
-        ip=$1
-        port=$2
-	scp -P $port $bin_path/config.yml $ip:$bin_path
+	scp -P $port $bin_path/config.yml $host:$bin_path
 }
 
 dispatch_bin(){
-	ip=$1
-	port=$2
-	scp -P $port -r $bin_path $ip:$bin_path
+	ssh -p $port $host "rm -rf $bin_path"
+	scp -P $port -r $bin_path $host:${bin_path%'/'*}
 }
 
 dispatch_monitor(){
-	ip=$1
-        port=$2
-        scp -P $port -r $bin_path/monitor.sh $ip:$monitor_path
+        scp -P $port -r $bin_path/monitor.sh $host:$monitor_path
 }
 
 start_all(){
-	ip=$1
-        port=$2
-	ssh -p $port $ip "sh $bin_path/start.sh"
+	ssh -p $port $host "sh $bin_path/start.sh"
 }
 
 
 stop_all(){
-	ip=$1
-        port=$2
-	ssh -p $port $ip "sh $bin_path/stop.sh"
+	ssh -p $port $host "sh $bin_path/stop.sh"
 }
 
-hosts=("druid2")
-for host in ${hosts[@]};do
-	echo "$host ===>>> `date`"
-	port=22
-	#if [ $ip ="xx" ];then
-        #        port=5837
-        #fi
-	$1 $host $port $@
+hosts=("insight-service-app-4:22" "insight-service-app-19:5837" "insight-service-app-20:5837")
+for host_ in ${hosts[@]};do
+	echo "$host_ =====>>> `date`"
+        port=${host_#*':'}
+        host=${host_%':'*}
+	$1 $@
 done
