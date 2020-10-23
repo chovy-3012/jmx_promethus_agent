@@ -1,10 +1,10 @@
 startDelaySeconds: 0
-hostPort: localhost:9999
+hostPort: insight-kafka-1:9999
 username:
 password:
 ssl: false
 lowercaseOutputName: true
-#whitelistObjectNames: []
+whitelistObjectNames: ["java.lang:*","kafka.controller:*","kafka.network:*","kafka.server:type=ReplicaManager,*","kafka.server:type=BrokerTopicMetrics,*"]
 rules:
 
 - pattern : java.lang<type=GarbageCollector, name=(G1 Young Generation|G1 Old Generation)><LastGcInfo>(duration|GcThreadCount)
@@ -23,18 +23,23 @@ rules:
     type: "$2"
 - pattern : java.lang<type=Threading><>ThreadCount
   name: kafka_jvm_threadcount
+
+
 - pattern : kafka.network<type=RequestMetrics, name=(.+), request=(.+)><>(99thPercentile|95thPercentile|OneMinuteRate)
   name: kafka_network_requestmetrics
   labels:
     name: "$1"
     request: "$2"
     type: "$3"
-- pattern : kafka.controller<type=(.+), name=(.+)><>(Count|Value)
-  name: kafka_controller_$1_$2
 - pattern : kafka.network<type=RequestChannel, name=(RequestQueueSize|ResponseQueueSize)><>Value
   name: kafka_network_requestchannel
   labels:
     name: "$1"
+
+- pattern : kafka.controller<type=(.+), name=(.+)><>(Count|Value)
+  name: kafka_controller_$1_$2
+
+
 - pattern : kafka.server<type=ReplicaManager, name=(.+)><>(Value|OneMinuteRate)
   name: kafka_server_replicamanager
   labels:
