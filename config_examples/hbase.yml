@@ -4,6 +4,7 @@ username:
 password:
 ssl: false
 lowercaseOutputName: true
+whitelistObjectNames: ["java.lang:*","Hadoop:service=HBase,name=JvmMetrics,*","Hadoop:service=HBase,name=RegionServer,sub=(IPC|Server|Users|WAL),*"]
 rules:
 
 - pattern : java.lang<type=GarbageCollector, name=(G1 Young Generation|G1 Old Generation)><LastGcInfo>(duration|GcThreadCount)
@@ -15,13 +16,11 @@ rules:
   name: hbase_gc_collectioncount
   labels:
     space: "$1"
-
 - pattern : java.lang<type=MemoryPool, name=(G1 Eden Space|G1 Old Gen|G1 Survivor Space)><Usage>(used|committed)
   name: hbase_memory_usage
   labels:
     space: "$1"
     type: "$2"
-
 - pattern : java.lang<type=Threading><>ThreadCount
   name: hbase_jvm_threadcount
 

@@ -25,6 +25,7 @@ start_all(){
 
 stop_all(){
 	ssh -p $port $host "sh $bin_path/stop.sh"
+	#ssh -p $port $host "pkill -f jmx_prometheus_httpserver"
 }
 
 hosts=("insight-service-app-4:22" "insight-service-app-19:5837" "insight-service-app-20:5837")
