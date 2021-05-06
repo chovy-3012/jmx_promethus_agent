@@ -15,9 +15,10 @@ rules:
   name: gc_collectioncount
   labels:
     space: "$1"
-
 - pattern : java.lang<type=MemoryPool, name=(G1 Eden Space|G1 Old Gen|G1 Survivor Space)><Usage>(used|committed)
   name: gc_memory_usage
   labels:
     space: "$1"
     type: "$2"
+- pattern : java.lang<type=Threading><>ThreadCount
+  name: jvm_threadcount
